@@ -1,91 +1,64 @@
-import java.util.*;
-
 public class Graph {
-    private Map<Integer, List<Edge>> adj;
-
-    public Graph() {
-        adj = new HashMap<>();
-    }
-
-    public void addEdge(int i, int j, int l) {
-        List<Edge> list = adj.get(i);
-        if (list == null) {
-            list = new ArrayList<>();
-            adj.put(i, list);
-        }
-        list.add(new Edge(i, j, l));
-    }
-
-    public List<Edge> getEdges(int vertex) {
-        return adj.get(vertex);
-    }
-
-    public Set<Integer> vertexSet() {
-        return adj.keySet();
-    }
-
-    public double getLength(int a, int b) {
-        List<Edge> edges = adj.get(a);
-        for (Edge edge : edges) {
-            if (edge.b == b) {
-                return edge.l;
-            }
-        }
-        return 0;
-    }
-
     public static void main(String[] args) {
+        / Строим матрицу смежности графа и указываем длину всех дуг /
 
-        Graph L = new Graph();
-        L.addEdge(0, 1, 20);
-        L.addEdge(0, 2, 35);
-        L.addEdge(1, 3, 55);
-        L.addEdge(2, 4, 70);
-        L.addEdge(3, 5, 60);
-        L.addEdge(4, 6, 100);
-        L.addEdge(5, 7, 80);
-        L.addEdge(6, 7, 30);
+        /
+         * Wj = Wk + xk - lkj * g, где
+         * Wk - начальное количество топлива в баке в начале маршрута из точки k в точку
+         * j;
+         * xk - количество заправленного топлива в точке `k`
+         * lkj - длина участка (k, j) ∈ E;
+         * g – удельный расход топлива;
+         * phi - количество полученного топлива в точке j.
+         /
 
-        for (int vertex : L.vertexSet()) {
-            List<Edge> edges = L.getEdges(vertex);
-            for (Edge edge : edges) {
-                System.out.println(edge.a + " -> " + edge.b + " (" + edge.l + ")");
-            }
-        }
-        int n = 8; // Количество вершин графа
+        double phi;
 
-        /** Строим матрицу смежности графа и указываем длину всех дуг**/
+        int n = 9; // Количество вершин графа
+        int m = 8; // Количество ребер графа
 
+        int[] a = new int[] { 0, 0, 1, 2, 3, 3, 4, 5, 6 }; // откуда
+        int[] b = new int[] { 1, 2, 3, 4, 5, 6, 6, 7, 7 }; // куда
+        int[] l = new int[] { 20, 35, 55, 70, 60, 40, 100, 80, 30 }; // длина
 
-        /** Wj = Wk + xk - lkj * g, где
-         *  Wk - начальное количество топлива в баке в начале маршрута из точки k в точку j;
-         *  xk - количество заправленного топлива в точке `k`
-         *  lkj - длина участка (k, j) ∈ E;
-         *  g – удельный расход топлива;
-         *  Wj - количество полученного топлива в точке j.
-         **/
+        int[] xk = new int[] { 5, 5, 1, 2, 5, 3, 10, 10, 15 }; // заправленное топливо в точках
+        double[] p = new double[] { 55, 55, 49.1, 61, 50, 49, 53, 52.5, 51 }; // цена за 1 литр 
+        double g = 0.1; // средний расход в литрах на 1 км, если 10л на 100км
+        double[] w = new double[10]; // кол-во горючего в баке на предыщуй точке
+        double[][] S = new double[10][10]; // общая сумма затраченного горючего при движении
 
-        double Wj;
-        int[] xk = new int[]{5, 1, 2, 5, 3, 10, 10, 0};
-        double[] p = new double[]{55, 49.1, 61, 50, 49, 53, 52.5, 0};
-        double[][] Wk = new double[10][10]; // Количество полученн
-        double g = 0.01; // средний расход на 1 км, если 10л на 100км
+        System.out.println("\nИмеем алгоритм:");
+        // Алгоритм из 0 в N
+        for (int d = 0; d < n; d++) {
+            if (l[d] > 0) {
+                S[a[d]][b[d]] = w[a[d]] + xk[d] - l[d] * g;
+                phi = xk[d] * p[d] + S[a[d]][b[d]];
 
-        for (int i = 0; i < n; i++) {
-            for (int j = n - 1; j >= 1; j--) {
-                if (L.getLength(i, j) > 0) {
-                    if (i == 0) {
-                        Wj = 0 + xk[i] - L.getLength(i, j) * g;
-                        System.out.println(Wj + " = 0.0  + " + xk[i] + " - " + L.getLength(j, i) + " * " + g + " Из точки " + j + " в точку " + i + " с расстоянием " + L.getLength(i, j));
-                        Wk[j][j] = Wj;
-                    } else {
-                        Wj = Wk[i][i] + xk[i] - L.getLength(i, j) * g;
-                        System.out.println(Wj + " = " + Wk[i][i] + " + " + xk[i] + " - " + L.getLength(i, j) + " * " + g + " Из точки " + i + " в точку " + j + " с расстоянием " + L.getLength(i, j));
-                        Wk[j][j] = Wj;
-                    }
-
+                System.out.println(phi + " = " + xk[d] + " * " + p[d] + " + (" + w[a[d]] + " + "
+                        + xk[d] + " - " + l[d] + " * " + g + ") Из точки " + a[d] +
+                        " в точку " + b[d] + " с расстоянием " + l[d]);
+                if(d > 0 && b[d - 1] == b[d]) {
+                    w[b[d]] = Math.min(w[b[d]], phi);
+               } else {
+                    w[b[d]] = phi;
                 }
             }
         }
+        // Алгоритм из N в 0
+        for (int d = n - 1; d >= 0; d--) {
+            if (l[d] > 0) {
+                S[a[d]][b[d]] = w[a[d]] + xk[d] - l[d] *  g;
+                phi = xk[d] * p[d] + S[a[d]][b[d]];
+
+                System.out.println(phi + " = " + xk[d] + " * " + p[d] + " + (" + w[b[d]] + " + "
+                        + xk[d] + " - " + l[d] + " * " + g + ") Из точки " + b[d] +
+                        " в точку " + a[d] + " с расстоянием " + l[d]);
+                if (d < n - 1 && a[d + 1] == a[d]) {
+                    w[a[d]] = Math.min(w[a[d]], phi);
+                } else {
+                    w[a[d]] = phi;
+                }
+            }
+        } 
     }
 }
