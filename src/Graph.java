@@ -31,7 +31,7 @@ public class Graph {
         double[] xk = new double[10];
         // double[] xk = new double[] { 5, 5, 1, 2, 5, 3, 10, 10, 15 }; // заправленное
         // топливо в точках
-        double[] p = new double[] { 55, 55, 49.1, 61, 50, 49, 53, 52.5, 51 }; // цена за 1 литр
+        double[] p = new double[] { 55, 55, 49.1, 61, 50, 50, 53, 52.5, 51 }; // цена за 1 литр
         double g = 0.1; // средний расход в литрах на 1 км, если 10л на 100км
         double[] w = new double[10]; // кол-во горючего в баке на предыщуй точке
         double[][] S = new double[10][10]; // общая сумма затраченного горючего при движении
@@ -67,15 +67,15 @@ public class Graph {
         // Алгоритм из N в 0 с учетом ограничения W
         if (num == 2) {
             System.out.println("\nОбратный алгоритм:");
-            for (int d = n - 1; d >= 0; d--) {
+            for (int d = n -1; d >= 0; d--) {
                 if (l[d] > 0) {
                     // Вычисление необходимого количества топлива xk для данной точки
                     xk[d] = Math.min(W, l[d] * g);
 
-                    S[k[d]][j[d]] = w[k[d]] + xk[d] - l[d] * g;
-                    phi = xk[d] * p[d] + S[k[d]][j[d]];
+                    S[j[d]][k[d]] = w[j[d]] + xk[d] - l[d] * g;
+                    phi = xk[d] * p[d] + S[j[d]][k[d]];
 
-                    System.out.println("Из " + j[d] + " в " + k[d] + " с расст. " + l[d] + " и ценой " + p[d]
+                    System.out.println("Из " + j[d] + " в " + k[d] + " с расст. " + l[d] + " и ценой в " + k[d] + " " + p[d]
                             + ": " + phi + " = " + xk[d] + " * " + p[d] + " + (" + w[j[d]] + " + "
                             + xk[d] + " - " + l[d] + " * " + g + ")");
 
